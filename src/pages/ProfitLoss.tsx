@@ -1,11 +1,9 @@
 
-import { GSTCalculator } from "@/components/calculators/GSTCalculator";
+import { ProfitLossCalculator } from "@/components/calculators/ProfitLossCalculator";
 import { Header } from "@/components/layout/Header";
 import { CalculatorAction } from "@/components/calculators/CalculatorLayout";
-import { Testimonials } from "@/components/sections/Testimonials";
-import { FAQ } from "@/components/sections/FAQ";
 
-const Index = () => {
+const ProfitLossPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -14,22 +12,19 @@ const Index = () => {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
               <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">
-                GST Calculator
+                Profit & Loss Calculator
               </h1>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                Quickly calculate GST amounts and total prices with our easy-to-use GST calculator.
+                Calculate your profit or loss margins with this easy-to-use calculator.
               </p>
             </div>
             
             <div className="mx-auto max-w-2xl">
-              <GSTCalculator />
+              <ProfitLossCalculator />
               <CalculatorAction />
             </div>
           </div>
         </section>
-        
-        <Testimonials />
-        <FAQ />
       </main>
       
       <footer className="border-t bg-gray-50 py-6">
@@ -39,9 +34,6 @@ const Index = () => {
               <p className="text-sm text-gray-500">
                 © 2025 Business & Finance Calculator Toolkit. All rights reserved.
               </p>
-              <p className="text-xs text-gray-500">
-                The calculators provided are for informational purposes only. Always consult with a qualified professional for financial advice.
-              </p>
             </div>
           </div>
         </div>
@@ -50,4 +42,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default ProfitLossPage;
