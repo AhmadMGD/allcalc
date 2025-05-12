@@ -3,12 +3,14 @@ import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCalculator } from "@/contexts/CalculatorContext";
+import { RotateCcw } from "lucide-react";
 
 interface CalculatorLayoutProps {
   title: string;
   description: string;
   children: ReactNode;
   onCalculate: () => void;
+  onReset: () => void;
   onSave: () => void;
   disableSave?: boolean;
 }
@@ -18,6 +20,7 @@ export function CalculatorLayout({
   description,
   children,
   onCalculate,
+  onReset,
   onSave,
   disableSave = true
 }: CalculatorLayoutProps) {
@@ -31,14 +34,25 @@ export function CalculatorLayout({
         {children}
       </CardContent>
       <CardFooter className="flex justify-between gap-4 pt-2 pb-4">
-        <Button 
-          variant="default" 
-          size="lg" 
-          className="bg-finance-blue hover:bg-finance-darkBlue"
-          onClick={onCalculate}
-        >
-          Calculate
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="default" 
+            size="lg" 
+            className="bg-finance-blue hover:bg-finance-darkBlue"
+            onClick={onCalculate}
+          >
+            Calculate
+          </Button>
+          <Button 
+            variant="outline" 
+            size="lg"
+            onClick={onReset}
+            title="Reset calculator"
+          >
+            <RotateCcw className="h-4 w-4 mr-1" />
+            Reset
+          </Button>
+        </div>
         <Button 
           variant="outline" 
           size="lg"

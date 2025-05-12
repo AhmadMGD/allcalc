@@ -31,6 +31,13 @@ export function BreakEvenCalculator() {
     setResult(calculationResult);
   };
 
+  const handleReset = () => {
+    setFixedCosts("");
+    setSellingPrice("");
+    setVariableCost("");
+    setResult(null);
+  };
+
   const handleSave = () => {
     if (result === null) return;
     
@@ -52,6 +59,7 @@ export function BreakEvenCalculator() {
       title="Break-even Point Calculator"
       description="Calculate how many units you need to sell to break even"
       onCalculate={handleCalculate}
+      onReset={handleReset}
       onSave={handleSave}
       disableSave={result === null}
     >

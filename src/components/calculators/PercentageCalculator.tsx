@@ -33,6 +33,12 @@ export function PercentageCalculator() {
     }
   };
 
+  const handleReset = () => {
+    setValue("");
+    setPercentage("");
+    setResult(null);
+  };
+
   const handleSave = () => {
     if (result === null) return;
     
@@ -64,6 +70,7 @@ export function PercentageCalculator() {
       title="Percentage Calculator"
       description="Calculate percentages and percentage ratios"
       onCalculate={handleCalculate}
+      onReset={handleReset}
       onSave={handleSave}
       disableSave={result === null}
     >

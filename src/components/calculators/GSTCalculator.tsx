@@ -25,6 +25,12 @@ export function GSTCalculator() {
     setResult(calculationResult);
   };
 
+  const handleReset = () => {
+    setAmount("");
+    setRate("10");
+    setResult(null);
+  };
+
   const handleSave = () => {
     if (!result) return;
     
@@ -45,6 +51,7 @@ export function GSTCalculator() {
       title="GST Calculator"
       description="Calculate the GST (Goods and Services Tax) amount and total price"
       onCalculate={handleCalculate}
+      onReset={handleReset}
       onSave={handleSave}
       disableSave={!result}
     >
@@ -63,7 +70,7 @@ export function GSTCalculator() {
         
         <div className="grid gap-2">
           <Label htmlFor="rate">GST Rate (%)</Label>
-          <Select defaultValue={rate} onValueChange={setRate}>
+          <Select value={rate} onValueChange={setRate}>
             <SelectTrigger id="rate" className="calculator-input">
               <SelectValue placeholder="Select GST rate" />
             </SelectTrigger>

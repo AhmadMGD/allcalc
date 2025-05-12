@@ -24,6 +24,12 @@ export function ProfitLossCalculator() {
     setResult(calculationResult);
   };
 
+  const handleReset = () => {
+    setCostPrice("");
+    setSellingPrice("");
+    setResult(null);
+  };
+
   const handleSave = () => {
     if (!result) return;
     
@@ -46,6 +52,7 @@ export function ProfitLossCalculator() {
       title="Profit & Loss Calculator"
       description="Calculate profit or loss on your sales"
       onCalculate={handleCalculate}
+      onReset={handleReset}
       onSave={handleSave}
       disableSave={!result}
     >

@@ -24,6 +24,12 @@ export function ROICalculator() {
     setResult(calculationResult);
   };
 
+  const handleReset = () => {
+    setInvestment("");
+    setReturns("");
+    setResult(null);
+  };
+
   const handleSave = () => {
     if (!result) return;
     
@@ -44,6 +50,7 @@ export function ROICalculator() {
       title="ROI Calculator"
       description="Calculate Return on Investment"
       onCalculate={handleCalculate}
+      onReset={handleReset}
       onSave={handleSave}
       disableSave={!result}
     >

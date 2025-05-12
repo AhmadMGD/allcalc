@@ -24,6 +24,12 @@ export function DiscountCalculator() {
     setResult(calculationResult);
   };
 
+  const handleReset = () => {
+    setOriginalPrice("");
+    setDiscountPercentage("");
+    setResult(null);
+  };
+
   const handleSave = () => {
     if (!result) return;
     
@@ -44,6 +50,7 @@ export function DiscountCalculator() {
       title="Discount Calculator"
       description="Calculate discounted prices and savings"
       onCalculate={handleCalculate}
+      onReset={handleReset}
       onSave={handleSave}
       disableSave={!result}
     >
