@@ -4,20 +4,22 @@ import { Header } from "@/components/layout/Header";
 import { CalculatorAction } from "@/components/calculators/CalculatorLayout";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { FAQ } from "@/components/sections/FAQ";
+import { ContactForm } from "@/components/sections/ContactForm";
+import { MainLayout } from "@/components/layout/MainLayout";
 
 const Index = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <MainLayout>
       <Header />
       <main className="flex-1">
         <section className="py-12">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
               <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">
-                GST Calculator
+                Business & Finance Calculator Toolkit
               </h1>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                Quickly calculate GST amounts and total prices with our easy-to-use GST calculator.
+                Professional calculators to simplify your business decisions. Quick, accurate, and easy to use.
               </p>
             </div>
             
@@ -30,6 +32,7 @@ const Index = () => {
         
         <Testimonials />
         <FAQ />
+        <ContactForm />
       </main>
       
       <footer className="border-t bg-gray-50 py-6">
@@ -46,7 +49,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
+    </MainLayout>
   );
 };
 

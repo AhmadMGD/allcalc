@@ -60,7 +60,8 @@ const calculators = [
 ];
 
 export function AppSidebar() {
-  const { open: collapsed } = useSidebar();
+  const { open: sidebarOpen } = useSidebar();
+  const collapsed = !sidebarOpen;
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) => {
     return cn(

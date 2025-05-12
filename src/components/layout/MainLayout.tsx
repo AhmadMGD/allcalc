@@ -12,7 +12,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const isMobile = useIsMobile();
 
   return (
-    <SidebarProvider defaultOpen={!isMobile} collapsedWidth={70}>
+    <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <main className="flex-1 overflow-auto">

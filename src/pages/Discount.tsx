@@ -1,45 +1,32 @@
 
 import { DiscountCalculator } from "@/components/calculators/DiscountCalculator";
-import { Header } from "@/components/layout/Header";
 import { CalculatorAction } from "@/components/calculators/CalculatorLayout";
+import { Header } from "@/components/layout/Header";
+import { MainLayout } from "@/components/layout/MainLayout";
 
-const DiscountPage = () => {
+const Discount = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <MainLayout>
       <Header />
-      <main className="flex-1">
-        <section className="py-12">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">
-                Discount Calculator
-              </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                Calculate discounted prices and savings for promotions and sales.
-              </p>
-            </div>
-            
-            <div className="mx-auto max-w-2xl">
-              <DiscountCalculator />
-              <CalculatorAction />
-            </div>
-          </div>
-        </section>
-      </main>
-      
-      <footer className="border-t bg-gray-50 py-6">
+      <section className="py-12">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <p className="text-sm text-gray-500">
-                © 2025 Business & Finance Calculator Toolkit. All rights reserved.
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">
+              Discount Calculator
+            </h1>
+            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+              Calculate discounts and final prices for your business transactions.
+            </p>
+          </div>
+          
+          <div className="mx-auto max-w-2xl">
+            <DiscountCalculator />
+            <CalculatorAction />
           </div>
         </div>
-      </footer>
-    </div>
+      </section>
+    </MainLayout>
   );
 };
 
-export default DiscountPage;
+export default Discount;

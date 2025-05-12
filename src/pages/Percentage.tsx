@@ -1,45 +1,32 @@
 
 import { PercentageCalculator } from "@/components/calculators/PercentageCalculator";
-import { Header } from "@/components/layout/Header";
 import { CalculatorAction } from "@/components/calculators/CalculatorLayout";
+import { Header } from "@/components/layout/Header";
+import { MainLayout } from "@/components/layout/MainLayout";
 
-const PercentagePage = () => {
+const Percentage = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <MainLayout>
       <Header />
-      <main className="flex-1">
-        <section className="py-12">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">
-                Percentage Calculator
-              </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-                Calculate percentages, percentage changes, and percentage ratios easily.
-              </p>
-            </div>
-            
-            <div className="mx-auto max-w-2xl">
-              <PercentageCalculator />
-              <CalculatorAction />
-            </div>
-          </div>
-        </section>
-      </main>
-      
-      <footer className="border-t bg-gray-50 py-6">
+      <section className="py-12">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <p className="text-sm text-gray-500">
-                © 2025 Business & Finance Calculator Toolkit. All rights reserved.
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tighter">
+              Percentage Calculator
+            </h1>
+            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+              Calculate percentage values, discounts, and ratios with ease.
+            </p>
+          </div>
+          
+          <div className="mx-auto max-w-2xl">
+            <PercentageCalculator />
+            <CalculatorAction />
           </div>
         </div>
-      </footer>
-    </div>
+      </section>
+    </MainLayout>
   );
 };
 
-export default PercentagePage;
+export default Percentage;
