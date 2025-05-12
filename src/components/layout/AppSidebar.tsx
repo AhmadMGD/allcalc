@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { 
   Calculator, 
@@ -17,8 +16,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar
 } from "@/components/ui/sidebar";
-import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 const calculators = [
@@ -61,7 +60,7 @@ const calculators = [
 ];
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar();
+  const { open: collapsed } = useSidebar();
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) => {
     return cn(
@@ -78,7 +77,7 @@ export function AppSidebar() {
         "h-screen border-r bg-sidebar",
         collapsed ? "w-[70px]" : "w-[240px]"
       )}
-      collapsible
+      collapsible="icon"
     >
       <div className="flex h-14 items-center justify-between px-4 border-b border-sidebar-border">
         {!collapsed && (
