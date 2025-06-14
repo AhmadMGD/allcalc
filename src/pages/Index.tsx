@@ -6,6 +6,7 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { FAQ } from "@/components/sections/FAQ";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { MainLayout } from "@/components/layout/MainLayout";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
@@ -42,6 +43,19 @@ const Index = () => {
               <p className="text-sm text-gray-500">
                 © 2025 Business & Finance Calculator Toolkit. All rights reserved.
               </p>
+              <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                <Link to="/privacy-policy" className="hover:text-finance-blue transition-colors">
+                  Privacy Policy
+                </Link>
+                <span>•</span>
+                <Link to="/terms" className="hover:text-finance-blue transition-colors">
+                  Terms of Service
+                </Link>
+                <span>•</span>
+                <Link to="/about" className="hover:text-finance-blue transition-colors">
+                  About Us
+                </Link>
+              </div>
               <p className="text-xs text-gray-500">
                 The calculators provided are for informational purposes only. Always consult with a qualified professional for financial advice.
               </p>

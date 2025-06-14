@@ -14,6 +14,10 @@ import Percentage from "./pages/Percentage";
 import ROI from "./pages/ROI";
 import BreakEven from "./pages/BreakEven";
 import Discount from "./pages/Discount";
+import About from "./pages/About";
+import Blog from "./pages/Blog";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +36,10 @@ const App = () => (
             <Route path="/roi" element={<ROI />} />
             <Route path="/break-even" element={<BreakEven />} />
             <Route path="/discount" element={<Discount />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

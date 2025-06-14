@@ -6,7 +6,9 @@ import {
   DollarSign,
   TrendingUp,
   ListCheck,
-  HelpCircle
+  HelpCircle,
+  Info,
+  BookOpen
 } from "lucide-react";
 
 import {
@@ -16,6 +18,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
   useSidebar
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -59,6 +64,21 @@ const calculators = [
   }
 ];
 
+const resources = [
+  { 
+    id: "about", 
+    name: "About Us", 
+    path: "/about", 
+    icon: <Info className="h-5 w-5" />
+  },
+  { 
+    id: "blog", 
+    name: "Financial Blog", 
+    path: "/blog", 
+    icon: <BookOpen className="h-5 w-5" />
+  }
+];
+
 export function AppSidebar() {
   const { open: sidebarOpen } = useSidebar();
   const collapsed = !sidebarOpen;
@@ -90,18 +110,41 @@ export function AppSidebar() {
       </div>
 
       <SidebarContent className="p-2">
-        <SidebarMenu>
-          {calculators.map((calculator) => (
-            <SidebarMenuItem key={calculator.id}>
-              <SidebarMenuButton asChild>
-                <NavLink to={calculator.path} className={navLinkClass} end={calculator.path === "/"}>
-                  {calculator.icon}
-                  {!collapsed && <span>{calculator.name}</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        <SidebarGroup>
+          <SidebarGroupLabel>Calculators</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {calculators.map((calculator) => (
+                <SidebarMenuItem key={calculator.id}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={calculator.path} className={navLinkClass} end={calculator.path === "/"}>
+                      {calculator.icon}
+                      {!collapsed && <span>{calculator.name}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resources.map((resource) => (
+                <SidebarMenuItem key={resource.id}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={resource.path} className={navLinkClass}>
+                      {resource.icon}
+                      {!collapsed && <span>{resource.name}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
