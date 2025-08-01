@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business & Finance Calculator Toolkit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'background': 'hsl(210, 50%, 98%)',
+                        'foreground': 'hsl(210, 50%, 15%)',
+                        'card': 'hsl(0, 0%, 100%)',
+                        'card-foreground': 'hsl(210, 50%, 15%)',
+                        'primary': 'hsl(210, 80%, 50%)',
+                        'primary-foreground': 'hsl(210, 40%, 98%)',
+                        'secondary': 'hsl(210, 40%, 96.1%)',
+                        'secondary-foreground': 'hsl(210, 50%, 15%)',
+                        'muted': 'hsl(210, 40%, 96.1%)',
+                        'muted-foreground': 'hsl(215.4, 16.3%, 46.9%)',
+                        'accent': 'hsl(210, 40%, 96.1%)',
+                        'accent-foreground': 'hsl(210, 50%, 15%)',
+                        'destructive': 'hsl(0, 84.2%, 60.2%)',
+                        'destructive-foreground': 'hsl(210, 40%, 98%)',
+                        'border': 'hsl(214.3, 31.8%, 91.4%)',
+                        'input': 'hsl(214.3, 31.8%, 91.4%)',
+                        'ring': 'hsl(210, 80%, 50%)',
+                        'finance-blue': 'hsl(210, 80%, 50%)',
+                        'finance-darkBlue': 'hsl(210, 85%, 40%)',
+                        'finance-gray': 'hsl(210, 40%, 96.1%)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .calculator-input {
+            @apply w-full bg-white border border-gray-200 rounded-md p-3 text-base focus:outline-none focus:ring-2 focus:ring-finance-blue;
+        }
+        
+        .calculator-result {
+            @apply bg-finance-gray p-4 rounded-md border border-gray-200;
+        }
+        
+        .card-shadow {
+            @apply shadow-md hover:shadow-lg transition-shadow;
+        }
+
+        .sidebar {
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        @media (min-width: 768px) {
+            .sidebar.collapsed {
+                transform: translateX(0);
+                width: 4rem;
+            }
+        }
+
+        .nav-item.active {
+            background-color: hsl(210, 85%, 40%);
+            color: white;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: hsl(210, 80%, 50%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground min-h-screen">
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-finance-blue text-white w-64 md:w-64 fixed md:relative h-full z-50">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 id="sidebar-title" class="text-xl font-bold">Calculator Toolkit</h2>
+                    <button id="sidebar-toggle" class="md:hidden text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <nav class="space-y-2">
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-finance-gray uppercase tracking-wider mb-2">Calculators</h3>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="home">
+                            <span class="nav-text">🏠 Home</span>
+                        </a>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="gst">
+                            <span class="nav-text">📊 GST Calculator</span>
+                        </a>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="profit-loss">
+                            <span class="nav-text">💰 Profit & Loss</span>
+                        </a>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="percentage">
+                            <span class="nav-text">📈 Percentage</span>
+                        </a>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="roi">
+                            <span class="nav-text">🎯 ROI Calculator</span>
+                        </a>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="break-even">
+                            <span class="nav-text">⚖️ Break-Even Point</span>
+                        </a>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="discount">
+                            <span class="nav-text">🏷️ Discount</span>
+                        </a>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-sm font-medium text-finance-gray uppercase tracking-wider mb-2">Resources</h3>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="about">
+                            <span class="nav-text">ℹ️ About Us</span>
+                        </a>
+                        <a href="#" class="nav-item block py-2 px-3 rounded hover:bg-finance-darkBlue transition-colors" data-page="blog">
+                            <span class="nav-text">📝 Financial Blog</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-0 md:ml-0 transition-all duration-300">
+            <!-- Header -->
+            <header class="bg-white py-6 border-b border-gray-200">
+                <div class="container px-4 md:px-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <button id="mobile-sidebar-toggle" class="md:hidden text-finance-blue">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                            <div>
+                                <h1 class="text-2xl font-bold text-finance-darkBlue">
+                                    Business & Finance Calculator Toolkit
+                                </h1>
+                                <p class="text-gray-500 mt-1">
+                                    Professional calculators for business owners and freelancers
+                                </p>
+                            </div>
+                        </div>
+                        <button id="export-pdf-btn" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-4 py-2 rounded-md transition-colors">
+                            Download PDF Report
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="container mx-auto py-6 px-4">
+                <!-- Home Page -->
+                <div id="page-home" class="page-content">
+                    <section class="py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">
+                                Professional Business Calculators
+                            </h1>
+                            <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+                                Streamline your financial calculations with our comprehensive suite of business tools.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick="navigateToPage('gst')">
+                                <h3 class="text-xl font-bold text-finance-darkBlue mb-2">GST Calculator</h3>
+                                <p class="text-gray-600">Calculate GST amounts and totals for your transactions.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick="navigateToPage('profit-loss')">
+                                <h3 class="text-xl font-bold text-finance-darkBlue mb-2">Profit & Loss</h3>
+                                <p class="text-gray-600">Calculate your profit margins and business performance.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick="navigateToPage('percentage')">
+                                <h3 class="text-xl font-bold text-finance-darkBlue mb-2">Percentage Calculator</h3>
+                                <p class="text-gray-600">Calculate percentage values and ratios with ease.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick="navigateToPage('roi')">
+                                <h3 class="text-xl font-bold text-finance-darkBlue mb-2">ROI Calculator</h3>
+                                <p class="text-gray-600">Calculate return on investment for better decisions.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick="navigateToPage('break-even')">
+                                <h3 class="text-xl font-bold text-finance-darkBlue mb-2">Break-Even Point</h3>
+                                <p class="text-gray-600">Determine how many units to sell to cover costs.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick="navigateToPage('discount')">
+                                <h3 class="text-xl font-bold text-finance-darkBlue mb-2">Discount Calculator</h3>
+                                <p class="text-gray-600">Calculate discounts and final prices quickly.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- GST Calculator Page -->
+                <div id="page-gst" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">GST Calculator</h1>
+                            <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+                                Calculate GST amounts and totals for your business transactions.
+                            </p>
+                        </div>
+                        
+                        <div class="mx-auto max-w-2xl">
+                            <div class="bg-white rounded-lg card-shadow">
+                                <div class="bg-finance-gray rounded-t-lg p-6">
+                                    <h2 class="text-xl font-bold text-finance-darkBlue">GST Calculator</h2>
+                                    <p class="text-gray-600">Calculate Goods and Services Tax</p>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div class="grid gap-2">
+                                        <label for="gst-amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                                        <input id="gst-amount" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div class="grid gap-2">
+                                        <label for="gst-rate" class="block text-sm font-medium text-gray-700">GST Rate (%)</label>
+                                        <select id="gst-rate" class="calculator-input">
+                                            <option value="5">5%</option>
+                                            <option value="12">12%</option>
+                                            <option value="18" selected>18%</option>
+                                            <option value="28">28%</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div id="gst-result" class="calculator-result mt-6 hidden">
+                                        <h3 class="text-lg font-medium mb-2">GST Calculation</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-sm text-gray-500">GST Amount</p>
+                                                <p id="gst-amount-result" class="text-lg font-medium text-finance-darkBlue"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Total Amount</p>
+                                                <p id="gst-total-result" class="text-lg font-medium text-green-600"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between gap-4 p-6 pt-2">
+                                    <div class="flex gap-2">
+                                        <button onclick="calculateGST()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-6 py-2 rounded-md transition-colors">
+                                            Calculate
+                                        </button>
+                                        <button onclick="resetGST()" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                            🔄 Reset
+                                        </button>
+                                    </div>
+                                    <button id="save-gst-btn" onclick="saveGSTCalculation()" disabled class="border border-gray-300 text-gray-400 px-6 py-2 rounded-md cursor-not-allowed">
+                                        Save Result
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-4 my-8">
+                                <button onclick="clearAllCalculations()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                    Clear All
+                                </button>
+                                <button onclick="exportToPDF()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-4 py-2 rounded-md transition-colors">
+                                    Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ROI Calculator Page -->
+                <div id="page-roi" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">ROI Calculator</h1>
+                            <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+                                Calculate your return on investment to make better business decisions.
+                            </p>
+                        </div>
+                        
+                        <div class="mx-auto max-w-2xl">
+                            <div class="bg-white rounded-lg card-shadow">
+                                <div class="bg-finance-gray rounded-t-lg p-6">
+                                    <h2 class="text-xl font-bold text-finance-darkBlue">ROI Calculator</h2>
+                                    <p class="text-gray-600">Calculate Return on Investment</p>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div class="grid gap-2">
+                                        <label for="roi-investment" class="block text-sm font-medium text-gray-700">Investment Amount</label>
+                                        <input id="roi-investment" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div class="grid gap-2">
+                                        <label for="roi-returns" class="block text-sm font-medium text-gray-700">Return Amount</label>
+                                        <input id="roi-returns" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div id="roi-result" class="calculator-result mt-6 hidden">
+                                        <h3 class="text-lg font-medium mb-2">ROI Calculation</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-sm text-gray-500">ROI</p>
+                                                <p id="roi-amount-result" class="text-lg font-medium"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">ROI Percentage</p>
+                                                <p id="roi-percentage-result" class="text-lg font-medium"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between gap-4 p-6 pt-2">
+                                    <div class="flex gap-2">
+                                        <button onclick="calculateROI()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-6 py-2 rounded-md transition-colors">
+                                            Calculate
+                                        </button>
+                                        <button onclick="resetROI()" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                            🔄 Reset
+                                        </button>
+                                    </div>
+                                    <button id="save-roi-btn" onclick="saveROICalculation()" disabled class="border border-gray-300 text-gray-400 px-6 py-2 rounded-md cursor-not-allowed">
+                                        Save Result
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-4 my-8">
+                                <button onclick="clearAllCalculations()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                    Clear All
+                                </button>
+                                <button onclick="exportToPDF()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-4 py-2 rounded-md transition-colors">
+                                    Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Discount Calculator Page -->
+                <div id="page-discount" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">Discount Calculator</h1>
+                            <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+                                Calculate discounts and final prices for your business transactions.
+                            </p>
+                        </div>
+                        
+                        <div class="mx-auto max-w-2xl">
+                            <div class="bg-white rounded-lg card-shadow">
+                                <div class="bg-finance-gray rounded-t-lg p-6">
+                                    <h2 class="text-xl font-bold text-finance-darkBlue">Discount Calculator</h2>
+                                    <p class="text-gray-600">Calculate discounted prices and savings</p>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div class="grid gap-2">
+                                        <label for="discount-original" class="block text-sm font-medium text-gray-700">Original Price</label>
+                                        <input id="discount-original" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div class="grid gap-2">
+                                        <label for="discount-percentage" class="block text-sm font-medium text-gray-700">Discount Percentage (%)</label>
+                                        <input id="discount-percentage" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div id="discount-result" class="calculator-result mt-6 hidden">
+                                        <h3 class="text-lg font-medium mb-2">Discount Calculation</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Discount Amount</p>
+                                                <p id="discount-amount-result" class="text-lg font-medium text-finance-darkBlue"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Final Price</p>
+                                                <p id="discount-final-result" class="text-lg font-medium text-green-600"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between gap-4 p-6 pt-2">
+                                    <div class="flex gap-2">
+                                        <button onclick="calculateDiscount()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-6 py-2 rounded-md transition-colors">
+                                            Calculate
+                                        </button>
+                                        <button onclick="resetDiscount()" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                            🔄 Reset
+                                        </button>
+                                    </div>
+                                    <button id="save-discount-btn" onclick="saveDiscountCalculation()" disabled class="border border-gray-300 text-gray-400 px-6 py-2 rounded-md cursor-not-allowed">
+                                        Save Result
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-4 my-8">
+                                <button onclick="clearAllCalculations()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                    Clear All
+                                </button>
+                                <button onclick="exportToPDF()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-4 py-2 rounded-md transition-colors">
+                                    Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Profit & Loss Calculator Page -->
+                <div id="page-profit-loss" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">Profit & Loss Calculator</h1>
+                            <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+                                Calculate your profit or loss and see your business performance at a glance.
+                            </p>
+                        </div>
+                        
+                        <div class="mx-auto max-w-2xl">
+                            <div class="bg-white rounded-lg card-shadow">
+                                <div class="bg-finance-gray rounded-t-lg p-6">
+                                    <h2 class="text-xl font-bold text-finance-darkBlue">Profit & Loss Calculator</h2>
+                                    <p class="text-gray-600">Calculate profit, loss, and margin</p>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div class="grid gap-2">
+                                        <label for="pl-cost" class="block text-sm font-medium text-gray-700">Cost Price</label>
+                                        <input id="pl-cost" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div class="grid gap-2">
+                                        <label for="pl-selling" class="block text-sm font-medium text-gray-700">Selling Price</label>
+                                        <input id="pl-selling" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div id="pl-result" class="calculator-result mt-6 hidden">
+                                        <h3 class="text-lg font-medium mb-2">Profit & Loss Calculation</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Amount</p>
+                                                <p id="pl-amount-result" class="text-lg font-medium"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Margin</p>
+                                                <p id="pl-margin-result" class="text-lg font-medium"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between gap-4 p-6 pt-2">
+                                    <div class="flex gap-2">
+                                        <button onclick="calculateProfitLoss()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-6 py-2 rounded-md transition-colors">
+                                            Calculate
+                                        </button>
+                                        <button onclick="resetProfitLoss()" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                            🔄 Reset
+                                        </button>
+                                    </div>
+                                    <button id="save-pl-btn" onclick="savePLCalculation()" disabled class="border border-gray-300 text-gray-400 px-6 py-2 rounded-md cursor-not-allowed">
+                                        Save Result
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-4 my-8">
+                                <button onclick="clearAllCalculations()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                    Clear All
+                                </button>
+                                <button onclick="exportToPDF()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-4 py-2 rounded-md transition-colors">
+                                    Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Percentage Calculator Page -->
+                <div id="page-percentage" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">Percentage Calculator</h1>
+                            <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+                                Calculate percentage values, discounts, and ratios with ease.
+                            </p>
+                        </div>
+                        
+                        <div class="mx-auto max-w-2xl">
+                            <div class="bg-white rounded-lg card-shadow">
+                                <div class="bg-finance-gray rounded-t-lg p-6">
+                                    <h2 class="text-xl font-bold text-finance-darkBlue">Percentage Calculator</h2>
+                                    <p class="text-gray-600">Calculate percentage values and ratios</p>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-4">
+                                        <button id="tab-find" onclick="switchPercentageTab('find')" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-white text-gray-900 shadow-sm">
+                                            Find Percentage
+                                        </button>
+                                        <button id="tab-ratio" onclick="switchPercentageTab('ratio')" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-900">
+                                            Percentage Ratio
+                                        </button>
+                                    </div>
+
+                                    <div id="percentage-find-tab" class="tab-content">
+                                        <div class="grid gap-2">
+                                            <label for="percentage-value" class="block text-sm font-medium text-gray-700">Value</label>
+                                            <input id="percentage-value" type="text" placeholder="0.00" class="calculator-input">
+                                        </div>
+                                        
+                                        <div class="grid gap-2">
+                                            <label for="percentage-percent" class="block text-sm font-medium text-gray-700">Percentage (%)</label>
+                                            <input id="percentage-percent" type="text" placeholder="0.00" class="calculator-input">
+                                        </div>
+                                    </div>
+
+                                    <div id="percentage-ratio-tab" class="tab-content hidden">
+                                        <div class="grid gap-2">
+                                            <label for="percentage-value2" class="block text-sm font-medium text-gray-700">First Value</label>
+                                            <input id="percentage-value2" type="text" placeholder="0.00" class="calculator-input">
+                                        </div>
+                                        
+                                        <div class="grid gap-2">
+                                            <label for="percentage-total" class="block text-sm font-medium text-gray-700">Total Value</label>
+                                            <input id="percentage-total" type="text" placeholder="0.00" class="calculator-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="percentage-result" class="calculator-result mt-6 hidden">
+                                        <h3 class="text-lg font-medium mb-2">Percentage Calculation</h3>
+                                        <div class="text-center">
+                                            <p class="text-sm text-gray-500">Result</p>
+                                            <p id="percentage-result-value" class="text-2xl font-bold text-finance-darkBlue"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between gap-4 p-6 pt-2">
+                                    <div class="flex gap-2">
+                                        <button onclick="calculatePercentage()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-6 py-2 rounded-md transition-colors">
+                                            Calculate
+                                        </button>
+                                        <button onclick="resetPercentage()" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                            🔄 Reset
+                                        </button>
+                                    </div>
+                                    <button id="save-percentage-btn" onclick="savePercentageCalculation()" disabled class="border border-gray-300 text-gray-400 px-6 py-2 rounded-md cursor-not-allowed">
+                                        Save Result
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-4 my-8">
+                                <button onclick="clearAllCalculations()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                    Clear All
+                                </button>
+                                <button onclick="exportToPDF()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-4 py-2 rounded-md transition-colors">
+                                    Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Break-Even Calculator Page -->
+                <div id="page-break-even" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+                            <h1 class="text-3xl md:text-4xl font-bold tracking-tighter">Break-Even Point Calculator</h1>
+                            <p class="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+                                Calculate how many units you need to sell to cover your costs.
+                            </p>
+                        </div>
+                        
+                        <div class="mx-auto max-w-2xl">
+                            <div class="bg-white rounded-lg card-shadow">
+                                <div class="bg-finance-gray rounded-t-lg p-6">
+                                    <h2 class="text-xl font-bold text-finance-darkBlue">Break-Even Point Calculator</h2>
+                                    <p class="text-gray-600">Calculate break-even point in units and revenue</p>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div class="grid gap-2">
+                                        <label for="be-fixed" class="block text-sm font-medium text-gray-700">Fixed Costs</label>
+                                        <input id="be-fixed" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div class="grid gap-2">
+                                        <label for="be-selling" class="block text-sm font-medium text-gray-700">Selling Price per Unit</label>
+                                        <input id="be-selling" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div class="grid gap-2">
+                                        <label for="be-variable" class="block text-sm font-medium text-gray-700">Variable Cost per Unit</label>
+                                        <input id="be-variable" type="text" placeholder="0.00" class="calculator-input">
+                                    </div>
+                                    
+                                    <div id="be-result" class="calculator-result mt-6 hidden">
+                                        <h3 class="text-lg font-medium mb-2">Break-Even Analysis</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Break-Even Units</p>
+                                                <p id="be-units-result" class="text-lg font-medium text-finance-darkBlue"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Break-Even Revenue</p>
+                                                <p id="be-revenue-result" class="text-lg font-medium text-green-600"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between gap-4 p-6 pt-2">
+                                    <div class="flex gap-2">
+                                        <button onclick="calculateBreakEven()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-6 py-2 rounded-md transition-colors">
+                                            Calculate
+                                        </button>
+                                        <button onclick="resetBreakEven()" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                            🔄 Reset
+                                        </button>
+                                    </div>
+                                    <button id="save-be-btn" onclick="saveBECalculation()" disabled class="border border-gray-300 text-gray-400 px-6 py-2 rounded-md cursor-not-allowed">
+                                        Save Result
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-4 my-8">
+                                <button onclick="clearAllCalculations()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
+                                    Clear All
+                                </button>
+                                <button onclick="exportToPDF()" class="bg-finance-blue hover:bg-finance-darkBlue text-white px-4 py-2 rounded-md transition-colors">
+                                    Export to PDF
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- About Page -->
+                <div id="page-about" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="text-center mb-12">
+                                <h1 class="text-3xl md:text-4xl font-bold tracking-tighter mb-4">About Our Financial Calculator Toolkit</h1>
+                                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                                    We provide professional-grade financial calculators designed specifically for business owners, freelancers, and entrepreneurs who need accurate, reliable financial calculations.
+                                </p>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                                <div class="bg-white p-6 rounded-lg shadow-md">
+                                    <h2 class="text-2xl font-bold text-finance-darkBlue mb-4">Our Mission</h2>
+                                    <p class="text-gray-600">
+                                        To simplify complex financial calculations and help businesses make informed decisions with confidence. We believe that everyone should have access to professional-grade financial tools without the complexity.
+                                    </p>
+                                </div>
+
+                                <div class="bg-white p-6 rounded-lg shadow-md">
+                                    <h2 class="text-2xl font-bold text-finance-darkBlue mb-4">What We Offer</h2>
+                                    <ul class="text-gray-600 space-y-2">
+                                        <li>• GST Calculator for tax calculations</li>
+                                        <li>• Profit & Loss analysis tools</li>
+                                        <li>• ROI calculators for investment decisions</li>
+                                        <li>• Break-even point analysis</li>
+                                        <li>• Discount and percentage calculators</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-finance-gray p-8 rounded-lg">
+                                <h2 class="text-2xl font-bold text-finance-darkBlue mb-6 text-center">Why Choose Our Calculators?</h2>
+                                <div class="grid md:grid-cols-3 gap-6">
+                                    <div class="text-center">
+                                        <h3 class="font-bold text-lg mb-2">Accurate</h3>
+                                        <p class="text-gray-600 text-sm">Professionally tested formulas ensure precise calculations every time.</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <h3 class="font-bold text-lg mb-2">Easy to Use</h3>
+                                        <p class="text-gray-600 text-sm">Intuitive interface designed for both beginners and professionals.</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <h3 class="font-bold text-lg mb-2">Free</h3>
+                                        <p class="text-gray-600 text-sm">All our tools are completely free to use with no hidden charges.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Blog Page -->
+                <div id="page-blog" class="page-content hidden">
+                    <section class="py-12">
+                        <div class="max-w-6xl mx-auto">
+                            <div class="text-center mb-12">
+                                <h1 class="text-3xl md:text-4xl font-bold tracking-tighter mb-4">Financial Education Blog</h1>
+                                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                                    Stay informed with our latest articles on business finance, tax planning, and financial management strategies.
+                                </p>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <article class="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                                            <span class="bg-finance-blue text-white px-2 py-1 rounded text-xs">Tax Planning</span>
+                                            <span>5 min read</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-finance-darkBlue mb-2">Understanding GST for Small Businesses</h3>
+                                        <p class="text-gray-600 text-sm mb-4">Learn how GST affects your business and how to calculate it correctly for compliance.</p>
+                                        <button class="text-finance-blue hover:text-finance-darkBlue font-medium text-sm">Read More →</button>
+                                    </div>
+                                </article>
+
+                                <article class="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                                            <span class="bg-green-500 text-white px-2 py-1 rounded text-xs">Investment</span>
+                                            <span>7 min read</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-finance-darkBlue mb-2">Maximizing ROI: A Beginner's Guide</h3>
+                                        <p class="text-gray-600 text-sm mb-4">Discover strategies to improve your return on investment and make smarter financial decisions.</p>
+                                        <button class="text-finance-blue hover:text-finance-darkBlue font-medium text-sm">Read More →</button>
+                                    </div>
+                                </article>
+
+                                <article class="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                                            <span class="bg-purple-500 text-white px-2 py-1 rounded text-xs">Business Strategy</span>
+                                            <span>6 min read</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-finance-darkBlue mb-2">Break-Even Analysis for Startups</h3>
+                                        <p class="text-gray-600 text-sm mb-4">Essential guide to understanding when your startup will become profitable.</p>
+                                        <button class="text-finance-blue hover:text-finance-darkBlue font-medium text-sm">Read More →</button>
+                                    </div>
+                                </article>
+
+                                <article class="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                                            <span class="bg-orange-500 text-white px-2 py-1 rounded text-xs">Finance</span>
+                                            <span>4 min read</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-finance-darkBlue mb-2">Profit Margin Optimization</h3>
+                                        <p class="text-gray-600 text-sm mb-4">Learn how to calculate and improve your profit margins for better business health.</p>
+                                        <button class="text-finance-blue hover:text-finance-darkBlue font-medium text-sm">Read More →</button>
+                                    </div>
+                                </article>
+
+                                <article class="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                                            <span class="bg-red-500 text-white px-2 py-1 rounded text-xs">Marketing</span>
+                                            <span>8 min read</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-finance-darkBlue mb-2">Pricing Strategies That Work</h3>
+                                        <p class="text-gray-600 text-sm mb-4">Effective pricing strategies to maximize revenue while staying competitive.</p>
+                                        <button class="text-finance-blue hover:text-finance-darkBlue font-medium text-sm">Read More →</button>
+                                    </div>
+                                </article>
+
+                                <article class="bg-white rounded-lg shadow-md overflow-hidden">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                                            <span class="bg-blue-500 text-white px-2 py-1 rounded text-xs">Tools</span>
+                                            <span>3 min read</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-finance-darkBlue mb-2">Financial Calculator Best Practices</h3>
+                                        <p class="text-gray-600 text-sm mb-4">Tips and tricks for getting the most out of financial calculation tools.</p>
+                                        <button class="text-finance-blue hover:text-finance-darkBlue font-medium text-sm">Read More →</button>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global state management
+        let savedCalculations = [];
+        let currentPage = 'home';
+        let sidebarCollapsed = false;
+        let currentPercentageTab = 'find';
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeNavigation();
+            initializeSidebar();
+            showPage('home');
+        });
+
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'bg-red-500' : 'bg-finance-blue'}`;
+            toast.textContent = message;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Navigation functions
+        function initializeNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        navigateToPage(page);
+                    }
+                });
+            });
+        }
+
+        function navigateToPage(page) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to current page
+            const activeNavItem = document.querySelector(`[data-page="${page}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
+            
+            showPage(page);
+            currentPage = page;
+            
+            // Close mobile sidebar after navigation
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show current page
+            const currentPageElement = document.getElementById(`page-${pageId}`);
+            if (currentPageElement) {
+                currentPageElement.classList.remove('hidden');
+                currentPageElement.classList.add('fade-in');
+            }
+        }
+
+        // Sidebar functionality
+        function initializeSidebar() {
+            const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            
+            if (mobileSidebarToggle) {
+                mobileSidebarToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarTitle = document.getElementById('sidebar-title');
+            const navTexts = document.querySelectorAll('.nav-text');
+            
+            sidebarCollapsed = !sidebarCollapsed;
+            
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                if (sidebarTitle) sidebarTitle.style.display = 'none';
+                navTexts.forEach(text => text.style.display = 'none');
+            } else {
+                sidebar.classList.remove('collapsed');
+                if (sidebarTitle) sidebarTitle.style.display = 'block';
+                navTexts.forEach(text => text.style.display = 'inline');
+            }
+        }
+
+        // Utility functions
+        function parseNumberInput(input) {
+            const cleaned = input.replace(/[^0-9.-]/g, '');
+            return parseFloat(cleaned) || 0;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        function formatPercentage(percentage) {
+            return `${percentage.toFixed(2)}%`;
+        }
+
+        function enableSaveButton(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = false;
+                button.classList.remove('text-gray-400', 'cursor-not-allowed');
+                button.classList.add('text-finance-blue', 'hover:bg-gray-50');
+            }
+        }
+
+        function disableSaveButton(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = true;
+                button.classList.add('text-gray-400', 'cursor-not-allowed');
+                button.classList.remove('text-finance-blue', 'hover:bg-gray-50');
+            }
+        }
+
+        // GST Calculator functions
+        function calculateGST() {
+            const amount = parseNumberInput(document.getElementById('gst-amount').value);
+            const rate = parseFloat(document.getElementById('gst-rate').value);
+            
+            if (amount <= 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const gstAmount = (amount * rate) / 100;
+            const totalAmount = amount + gstAmount;
+            
+            document.getElementById('gst-amount-result').textContent = formatCurrency(gstAmount);
+            document.getElementById('gst-total-result').textContent = formatCurrency(totalAmount);
+            document.getElementById('gst-result').classList.remove('hidden');
+            
+            enableSaveButton('save-gst-btn');
+        }
+
+        function resetGST() {
+            document.getElementById('gst-amount').value = '';
+            document.getElementById('gst-rate').value = '18';
+            document.getElementById('gst-result').classList.add('hidden');
+            disableSaveButton('save-gst-btn');
+        }
+
+        function saveGSTCalculation() {
+            const amount = parseNumberInput(document.getElementById('gst-amount').value);
+            const rate = parseFloat(document.getElementById('gst-rate').value);
+            const gstAmount = (amount * rate) / 100;
+            const totalAmount = amount + gstAmount;
+            
+            const calculation = {
+                calculator: 'GST Calculator',
+                title: `GST Calculation - ${new Date().toLocaleDateString()}`,
+                data: {
+                    'Amount': formatCurrency(amount),
+                    'GST Rate': formatPercentage(rate),
+                    'GST Amount': formatCurrency(gstAmount),
+                    'Total Amount': formatCurrency(totalAmount)
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            savedCalculations.push(calculation);
+            showToast('GST calculation saved!');
+        }
+
+        // ROI Calculator functions
+        function calculateROI() {
+            const investment = parseNumberInput(document.getElementById('roi-investment').value);
+            const returns = parseNumberInput(document.getElementById('roi-returns').value);
+            
+            if (investment <= 0) {
+                showToast('Please enter a valid investment amount', 'error');
+                return;
+            }
+            
+            const roi = returns - investment;
+            const roiPercentage = (roi / investment) * 100;
+            
+            const roiAmountElement = document.getElementById('roi-amount-result');
+            const roiPercentageElement = document.getElementById('roi-percentage-result');
+            
+            roiAmountElement.textContent = formatCurrency(roi);
+            roiPercentageElement.textContent = formatPercentage(roiPercentage);
+            
+            // Color coding based on profit/loss
+            const colorClass = roi >= 0 ? 'text-green-600' : 'text-red-600';
+            roiAmountElement.className = `text-lg font-medium ${colorClass}`;
+            roiPercentageElement.className = `text-lg font-medium ${colorClass}`;
+            
+            document.getElementById('roi-result').classList.remove('hidden');
+            enableSaveButton('save-roi-btn');
+        }
+
+        function resetROI() {
+            document.getElementById('roi-investment').value = '';
+            document.getElementById('roi-returns').value = '';
+            document.getElementById('roi-result').classList.add('hidden');
+            disableSaveButton('save-roi-btn');
+        }
+
+        function saveROICalculation() {
+            const investment = parseNumberInput(document.getElementById('roi-investment').value);
+            const returns = parseNumberInput(document.getElementById('roi-returns').value);
+            const roi = returns - investment;
+            const roiPercentage = (roi / investment) * 100;
+            
+            const calculation = {
+                calculator: 'ROI Calculator',
+                title: `ROI Calculation - ${new Date().toLocaleDateString()}`,
+                data: {
+                    'Investment Amount': formatCurrency(investment),
+                    'Return Amount': formatCurrency(returns),
+                    'ROI': formatCurrency(roi),
+                    'ROI Percentage': formatPercentage(roiPercentage)
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            savedCalculations.push(calculation);
+            showToast('ROI calculation saved!');
+        }
+
+        // Discount Calculator functions
+        function calculateDiscount() {
+            const originalPrice = parseNumberInput(document.getElementById('discount-original').value);
+            const discountPercentage = parseNumberInput(document.getElementById('discount-percentage').value);
+            
+            if (originalPrice <= 0 || discountPercentage <= 0) {
+                showToast('Please enter valid values', 'error');
+                return;
+            }
+            
+            const discountAmount = (originalPrice * discountPercentage) / 100;
+            const finalPrice = originalPrice - discountAmount;
+            
+            document.getElementById('discount-amount-result').textContent = formatCurrency(discountAmount);
+            document.getElementById('discount-final-result').textContent = formatCurrency(finalPrice);
+            document.getElementById('discount-result').classList.remove('hidden');
+            
+            enableSaveButton('save-discount-btn');
+        }
+
+        function resetDiscount() {
+            document.getElementById('discount-original').value = '';
+            document.getElementById('discount-percentage').value = '';
+            document.getElementById('discount-result').classList.add('hidden');
+            disableSaveButton('save-discount-btn');
+        }
+
+        function saveDiscountCalculation() {
+            const originalPrice = parseNumberInput(document.getElementById('discount-original').value);
+            const discountPercentage = parseNumberInput(document.getElementById('discount-percentage').value);
+            const discountAmount = (originalPrice * discountPercentage) / 100;
+            const finalPrice = originalPrice - discountAmount;
+            
+            const calculation = {
+                calculator: 'Discount Calculator',
+                title: `Discount Calculation - ${new Date().toLocaleDateString()}`,
+                data: {
+                    'Original Price': formatCurrency(originalPrice),
+                    'Discount Percentage': formatPercentage(discountPercentage),
+                    'Discount Amount': formatCurrency(discountAmount),
+                    'Final Price': formatCurrency(finalPrice)
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            savedCalculations.push(calculation);
+            showToast('Discount calculation saved!');
+        }
+
+        // Profit & Loss Calculator functions
+        function calculateProfitLoss() {
+            const costPrice = parseNumberInput(document.getElementById('pl-cost').value);
+            const sellingPrice = parseNumberInput(document.getElementById('pl-selling').value);
+            
+            if (costPrice <= 0 || sellingPrice <= 0) {
+                showToast('Please enter valid prices', 'error');
+                return;
+            }
+            
+            const amount = sellingPrice - costPrice;
+            const margin = (amount / sellingPrice) * 100;
+            const isProfit = amount >= 0;
+            
+            const amountElement = document.getElementById('pl-amount-result');
+            const marginElement = document.getElementById('pl-margin-result');
+            
+            amountElement.textContent = formatCurrency(Math.abs(amount));
+            marginElement.textContent = formatPercentage(Math.abs(margin));
+            
+            // Color coding and labeling
+            const colorClass = isProfit ? 'text-green-600' : 'text-red-600';
+            amountElement.className = `text-lg font-medium ${colorClass}`;
+            marginElement.className = `text-lg font-medium ${colorClass}`;
+            
+            // Update labels
+            document.querySelector('#pl-result .grid > div:first-child .text-gray-500').textContent = isProfit ? 'Profit' : 'Loss';
+            
+            document.getElementById('pl-result').classList.remove('hidden');
+            enableSaveButton('save-pl-btn');
+        }
+
+        function resetProfitLoss() {
+            document.getElementById('pl-cost').value = '';
+            document.getElementById('pl-selling').value = '';
+            document.getElementById('pl-result').classList.add('hidden');
+            disableSaveButton('save-pl-btn');
+        }
+
+        function savePLCalculation() {
+            const costPrice = parseNumberInput(document.getElementById('pl-cost').value);
+            const sellingPrice = parseNumberInput(document.getElementById('pl-selling').value);
+            const amount = sellingPrice - costPrice;
+            const margin = (amount / sellingPrice) * 100;
+            const isProfit = amount >= 0;
+            
+            const calculation = {
+                calculator: 'Profit & Loss Calculator',
+                title: `P&L Calculation - ${new Date().toLocaleDateString()}`,
+                data: {
+                    'Cost Price': formatCurrency(costPrice),
+                    'Selling Price': formatCurrency(sellingPrice),
+                    [`${isProfit ? 'Profit' : 'Loss'} Amount`]: formatCurrency(Math.abs(amount)),
+                    'Margin': formatPercentage(Math.abs(margin))
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            savedCalculations.push(calculation);
+            showToast('Profit & Loss calculation saved!');
+        }
+
+        // Percentage Calculator functions
+        function switchPercentageTab(tab) {
+            currentPercentageTab = tab;
+            
+            // Update tab buttons
+            document.getElementById('tab-find').className = tab === 'find' ? 
+                'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-white text-gray-900 shadow-sm' :
+                'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-900';
+            
+            document.getElementById('tab-ratio').className = tab === 'ratio' ? 
+                'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-white text-gray-900 shadow-sm' :
+                'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-900';
+            
+            // Show/hide tab content
+            document.getElementById('percentage-find-tab').classList.toggle('hidden', tab !== 'find');
+            document.getElementById('percentage-ratio-tab').classList.toggle('hidden', tab !== 'ratio');
+            
+            // Reset form and result
+            resetPercentage();
+        }
+
+        function calculatePercentage() {
+            let result = 0;
+            
+            if (currentPercentageTab === 'find') {
+                const value = parseNumberInput(document.getElementById('percentage-value').value);
+                const percentage = parseNumberInput(document.getElementById('percentage-percent').value);
+                
+                if (value <= 0 || percentage <= 0) {
+                    showToast('Please enter valid values', 'error');
+                    return;
+                }
+                
+                result = (value * percentage) / 100;
+                document.getElementById('percentage-result-value').textContent = formatCurrency(result);
+            } else {
+                const value = parseNumberInput(document.getElementById('percentage-value2').value);
+                const total = parseNumberInput(document.getElementById('percentage-total').value);
+                
+                if (value <= 0 || total <= 0) {
+                    showToast('Please enter valid values', 'error');
+                    return;
+                }
+                
+                result = (value / total) * 100;
+                document.getElementById('percentage-result-value').textContent = formatPercentage(result);
+            }
+            
+            document.getElementById('percentage-result').classList.remove('hidden');
+            enableSaveButton('save-percentage-btn');
+        }
+
+        function resetPercentage() {
+            if (currentPercentageTab === 'find') {
+                document.getElementById('percentage-value').value = '';
+                document.getElementById('percentage-percent').value = '';
+            } else {
+                document.getElementById('percentage-value2').value = '';
+                document.getElementById('percentage-total').value = '';
+            }
+            document.getElementById('percentage-result').classList.add('hidden');
+            disableSaveButton('save-percentage-btn');
+        }
+
+        function savePercentageCalculation() {
+            const calculation = {
+                calculator: 'Percentage Calculator',
+                title: `Percentage Calculation - ${new Date().toLocaleDateString()}`,
+                data: {},
+                timestamp: new Date().toISOString()
+            };
+            
+            if (currentPercentageTab === 'find') {
+                const value = parseNumberInput(document.getElementById('percentage-value').value);
+                const percentage = parseNumberInput(document.getElementById('percentage-percent').value);
+                const result = (value * percentage) / 100;
+                
+                calculation.data = {
+                    'Value': formatCurrency(value),
+                    'Percentage': formatPercentage(percentage),
+                    'Result': formatCurrency(result)
+                };
+            } else {
+                const value = parseNumberInput(document.getElementById('percentage-value2').value);
+                const total = parseNumberInput(document.getElementById('percentage-total').value);
+                const result = (value / total) * 100;
+                
+                calculation.data = {
+                    'Value': formatCurrency(value),
+                    'Total': formatCurrency(total),
+                    'Percentage': formatPercentage(result)
+                };
+            }
+            
+            savedCalculations.push(calculation);
+            showToast('Percentage calculation saved!');
+        }
+
+        // Break-Even Calculator functions
+        function calculateBreakEven() {
+            const fixedCosts = parseNumberInput(document.getElementById('be-fixed').value);
+            const sellingPrice = parseNumberInput(document.getElementById('be-selling').value);
+            const variableCost = parseNumberInput(document.getElementById('be-variable').value);
+            
+            if (fixedCosts <= 0 || sellingPrice <= 0 || variableCost < 0) {
+                showToast('Please enter valid values', 'error');
+                return;
+            }
+            
+            if (sellingPrice <= variableCost) {
+                showToast('Selling price must be greater than variable cost', 'error');
+                return;
+            }
+            
+            const breakEvenUnits = fixedCosts / (sellingPrice - variableCost);
+            const breakEvenRevenue = breakEvenUnits * sellingPrice;
+            
+            document.getElementById('be-units-result').textContent = Math.ceil(breakEvenUnits).toLocaleString();
+            document.getElementById('be-revenue-result').textContent = formatCurrency(breakEvenRevenue);
+            document.getElementById('be-result').classList.remove('hidden');
+            
+            enableSaveButton('save-be-btn');
+        }
+
+        function resetBreakEven() {
+            document.getElementById('be-fixed').value = '';
+            document.getElementById('be-selling').value = '';
+            document.getElementById('be-variable').value = '';
+            document.getElementById('be-result').classList.add('hidden');
+            disableSaveButton('save-be-btn');
+        }
+
+        function saveBECalculation() {
+            const fixedCosts = parseNumberInput(document.getElementById('be-fixed').value);
+            const sellingPrice = parseNumberInput(document.getElementById('be-selling').value);
+            const variableCost = parseNumberInput(document.getElementById('be-variable').value);
+            const breakEvenUnits = fixedCosts / (sellingPrice - variableCost);
+            const breakEvenRevenue = breakEvenUnits * sellingPrice;
+            
+            const calculation = {
+                calculator: 'Break-Even Calculator',
+                title: `Break-Even Analysis - ${new Date().toLocaleDateString()}`,
+                data: {
+                    'Fixed Costs': formatCurrency(fixedCosts),
+                    'Selling Price': formatCurrency(sellingPrice),
+                    'Variable Cost': formatCurrency(variableCost),
+                    'Break-Even Units': Math.ceil(breakEvenUnits).toLocaleString(),
+                    'Break-Even Revenue': formatCurrency(breakEvenRevenue)
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            savedCalculations.push(calculation);
+            showToast('Break-even calculation saved!');
+        }
+
+        // Global calculation management
+        function clearAllCalculations() {
+            savedCalculations = [];
+            showToast('All calculations cleared!');
+        }
+
+        function exportToPDF() {
+            if (savedCalculations.length === 0) {
+                showToast('No calculations to export!', 'error');
+                return;
+            }
+            
+            // Create JSON export (in real app, this would be PDF)
+            const dataStr = JSON.stringify(savedCalculations, null, 2);
+            const dataUri = `data:text/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
+            
+            const exportLink = document.createElement('a');
+            exportLink.setAttribute('href', dataUri);
+            exportLink.setAttribute('download', `calculations-${new Date().toISOString().slice(0, 10)}.json`);
+            exportLink.click();
+            
+            showToast('Calculations exported! In a production app, this would be a PDF.');
+        }
+
+        // Export to PDF from header
+        document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
+    </script>
+</body>
+</html>
